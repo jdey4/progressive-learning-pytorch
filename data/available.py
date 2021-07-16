@@ -48,7 +48,7 @@ class SpokenDigit(Dataset):
     def __init__(self, transform=None):
         super().__init__()
         self.transform = transform
-        self.X, self.y = load_spoken_digit('/Users/jayantadey/progressive-learning-pytorch/data/free-spoken-digit-dataset/recordings/')
+        self.X, self.y = load_spoken_digit('./data/free-spoken-digit-dataset/recordings/')
         self.X = self.X.reshape(3000,1,28,28)
         
     def __len__(self):
