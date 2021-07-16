@@ -3,10 +3,10 @@ import numpy as np
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
 from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CONFIGS
-from data.manipulate import ReducedDataset, ReducedSubDataset, SubDataset, TransformedDataset, GetSlotDataset, permutate_image_pixels, GetShuffledDataset
+from data.manipulate import ReducedDataset, ReducedSubDataset, SubDataset, TransformedDataset, GetSlotDataset, permutate_image_pixels, GetShuffledDataset, GetSpokenDigitDataset
 
-def get_dataset(name, shift, type='train', download=True, capacity=None, permutation=None, dir='./store/datasets',
-                verbose=False, augment=False, normalize=False, target_transform=None, valid_prop=0.):
+def get_dataset(name, type, download=True, capacity=None, permutation=None, dir='./store/datasets',
+                verbose=False, augment=False, normalize=False, target_transform=None, valid_prop=0., seed=0):
     '''Create [train|valid|test]-dataset.'''
 
     data_name = 'mnist' if name in ('mnist28') else name
@@ -22,40 +22,13 @@ def get_dataset(name, shift, type='train', download=True, capacity=None, permuta
     dataset_transform = transforms.Compose(transforms_list)
 
     # load data-set
-    dataset_train = dataset_class('{dir}/{name}'.format(dir=dir, name=data_name), train=True,
-                            download=download, transform=dataset_transform, target_transform=target_transform)
-    dataset_test = dataset_class('{dir}/{name}'.format(dir=dir, name=data_name), train=False,
-                            download=download, transform=dataset_transform, target_transform=target_transform)
+    dataset = dataset_class(transform=dataset_transform)
 
     #JD's change
-    dataset = ConcatDataset([dataset_train, dataset_test])
-    dataset = GetSlotDataset(dataset, shift=shift, type=type)
+    dataset = GetSpokenDigitDataset(dataset, seed, type=type)
     #dataset = GetShuffledDataset(dataset, shift=shift, type=type)
 
     #############
-
-    # if relevant, select "train" or "validation"-set from training-part of data
-    # NOTE: this split assumes order of items in training-dataset is random!
-    # (e.g., not first all samples from clas 1, then all samples from class 2, etc.)
-    if (type=='train' or type=='valid') and valid_prop>0:
-        dataset_size = len(dataset)
-        indices = list(range(dataset_size))
-        split = int(np.floor(valid_prop * dataset_size))
-        if type=='train':
-            indices_to_use = indices[split:]
-        elif type=='valid':
-            indices_to_use = indices[:split]
-        dataset = ReducedDataset(dataset, indices_to_use)
-
-    # print information about dataset on the screen
-    if verbose:
-        print(" --> {}: '{}'-dataset consisting of {} samples".format(name, type, len(dataset)))
-
-    # if dataset is (possibly) not large enough, create copies until it is.
-    if capacity is not None and len(dataset) < capacity:
-        dataset_copy = copy.deepcopy(dataset)
-        dataset = ConcatDataset([dataset_copy for _ in range(int(np.ceil(capacity / len(dataset))))])
-
     return dataset
 
 
@@ -89,7 +62,7 @@ def get_singletask_experiment(name, data_dir="./store/datasets", normalize=False
     return (trainset, testset), config
 
 
-def get_multitask_experiment(name, tasks, shift, data_dir="./store/datasets", normalize=False, augment=False,
+def get_multitask_experiment(seed, name, tasks, data_dir="./store/datasets", normalize=False, augment=False,
                              only_config=False, verbose=False, exception=False, only_test=False, max_samples=None):
     '''Load, organize and return train- and test-dataset for requested multi-task experiment.'''
 
@@ -168,9 +141,9 @@ def get_multitask_experiment(name, tasks, shift, data_dir="./store/datasets", no
             target_transform = transforms.Lambda(lambda y, x=permutation: int(permutation[y]))
             # prepare train and test datasets with all classes
             if not only_test:
-                cifar100_train = get_dataset('cifar100', shift=shift, type="train", dir=data_dir, normalize=normalize,
+                cifar100_train = get_dataset('cifar100', type="train", dir=data_dir, normalize=normalize,
                                              augment=augment, target_transform=target_transform, verbose=verbose)
-            cifar100_test = get_dataset('cifar100', shift=shift, type="test", dir=data_dir, normalize=normalize,
+            cifar100_test = get_dataset('cifar100', type="test", dir=data_dir, normalize=normalize,
                                         target_transform=target_transform, verbose=verbose)
             # generate labels-per-task
             labels_per_task = [
@@ -188,6 +161,39 @@ def get_multitask_experiment(name, tasks, shift, data_dir="./store/datasets", no
                         train_datasets.append(ReducedSubDataset(cifar100_train, labels,
                                                                 target_transform=target_transform, max=max_samples))
                 test_datasets.append(SubDataset(cifar100_test, labels, target_transform=target_transform))
+    elif name == 'spoken_digit':
+        # check for number of tasks
+        if tasks>60:
+            raise ValueError("Experiment 'spoken_digit' cannot have more than 60 tasks!")
+        # configurations
+        config = DATASET_CONFIGS['spoken_digit']
+        classes_per_task = int(np.floor(60 / tasks))
+        if not only_config:
+            # prepare permutation to shuffle label-ids (to create different class batches for each random seed)
+            permutation = list(range(60)) #np.random.permutation(list(range(100)))
+            target_transform = transforms.Lambda(lambda y, x=permutation: int(permutation[y]))
+            # prepare train and test datasets with all classes
+            if not only_test:
+                spoken_digit_train = get_dataset('spoken_digit', type="train", dir=data_dir, normalize=False,
+                                             augment=augment, target_transform=target_transform, verbose=verbose)
+            spoken_digit_test = get_dataset('spoken_digit', type="test", dir=data_dir, normalize=False,
+                                        target_transform=target_transform, verbose=verbose, seed=seed)
+            # generate labels-per-task
+            labels_per_task = [
+                list(np.array(range(classes_per_task)) + classes_per_task * task_id) for task_id in range(tasks)
+            ]
+            # split them up into sub-tasks
+            train_datasets = []
+            test_datasets = []
+            for labels in labels_per_task:
+                target_transform = None
+                if not only_test:
+                    if max_samples is None:
+                        train_datasets.append(SubDataset(spoken_digit_train, labels, target_transform=target_transform))
+                    else:
+                        train_datasets.append(ReducedSubDataset(spoken_digit_train, labels,
+                                                                target_transform=target_transform, max=max_samples))
+                test_datasets.append(SubDataset(spoken_digit_test, labels, target_transform=target_transform))
     else:
         raise RuntimeError('Given undefined experiment: {}'.format(name))
 

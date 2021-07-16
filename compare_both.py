@@ -30,10 +30,7 @@ def handle_inputs():
                         help="--> EWC: reg strength with 500 training samples")
     parser.add_argument('--o-lambda-500', metavar="LAMBDA", type=float,
                         help="--> Online EWC: reg strength with 500 training samples")
-    parser.add_argument('--shift', metavar="LAMBDA", type=int,
-                        help="-->shift: The number of shift to perform on test-train set")
-
-
+   
     args = parser.parse_args()
     options.set_defaults(args, **kwargs)
     options.check_for_errors(args, **kwargs)
@@ -44,19 +41,19 @@ def get_results(args):
     # -get param-stamp
     param_stamp = get_param_stamp_from_args(args)
     # -check whether already run; if not do so
-    if os.path.isfile('{}/dict-{}-{}.pkl'.format(args.r_dir, param_stamp, args.shift)):
+    if os.path.isfile('{}/dict-{}.pkl'.format(args.r_dir, param_stamp)):
         print("{}: already run".format(param_stamp))
     else:
         print("{}: ...running...".format(param_stamp))
         args.metrics = True
         main_cl.run(args)
     # -get average precision
-    file_name = '{}/prec-{}-{}.txt'.format(args.r_dir, param_stamp, args.shift)
+    file_name = '{}/prec-{}.txt'.format(args.r_dir, param_stamp)
     file = open(file_name)
     ave = float(file.readline())
     file.close()
     # -get metrics-dict
-    file_name = '{}/dict-{}-{}'.format(args.r_dir, param_stamp, args.shift)
+    file_name = '{}/dict-{}'.format(args.r_dir, param_stamp)
     metrics_dict = utils.load_object(file_name)
     # -print average precision on screen
     print("--> average precision: {}".format(ave))
@@ -100,6 +97,9 @@ if __name__ == '__main__':
 
     ## Load input-arguments
     args = handle_inputs()
+    args.experiment = 'spoken_digit'
+    args.tasks = 6
+
     # -create results-directory if needed
     if not os.path.isdir(args.r_dir):
         os.mkdir(args.r_dir)
@@ -129,8 +129,8 @@ if __name__ == '__main__':
     #--------------------------#
 
     #jd's change
-    seed_list = list(range(args.seed, args.seed+1))
-    print(seed_list)
+    seed_list = list(range(args.seed, args.seed+10))
+    #print(seed_list)
     ###----"Re-init"----###
     args.reinit = True
     REINIT = {}

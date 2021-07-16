@@ -38,7 +38,7 @@ def load_spoken_digit(path_recordings):
     y_number = np.array(y_number)
     for ii, speaker in enumerate(y_s):
         idx = np.where(y_speaker==speaker)[0]
-        y_number[idx] *= ii*10 
+        y_number[idx] += ii*10 
 
     return x_spec_mini, y_number
 
@@ -48,8 +48,9 @@ class SpokenDigit(Dataset):
     def __init__(self, transform=None):
         super().__init__()
         self.transform = transform
-        self.X, self.y = load_spoken_digit('D:/Python Exploration/free-spoken-digit-dataset/recordings/')
-
+        self.X, self.y = load_spoken_digit('/Users/jayantadey/progressive-learning-pytorch/data/free-spoken-digit-dataset/recordings/')
+        self.X = self.X.reshape(3000,1,28,28)
+        
     def __len__(self):
         return len(self.y)
 
@@ -79,6 +80,9 @@ AVAILABLE_TRANSFORMS = {
         transforms.ToTensor(),
     ],
     'cifar100': [
+        transforms.ToTensor(),
+    ],
+    'spoken_digit': [
         transforms.ToTensor(),
     ],
     'cifar10_norm': [

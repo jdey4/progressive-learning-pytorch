@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 #jd's version to manipulate the data
 class GetSlotDataset(Dataset):
@@ -33,6 +34,35 @@ class GetSlotDataset(Dataset):
 
     def __getitem__(self, index):
         return self.datatset[self.indeces[index]]
+
+
+class GetSpokenDigitDataset(Dataset):
+
+    def __init__(self, datatset_to_process, seed, type='train'):
+        super().__init__()
+        self.datatset = datatset_to_process
+        X = np.asarray([x for x,_ in self.datatset])
+        label = np.asarray([lbl for _,lbl in self.datatset])
+        self.indeces = []
+
+        np.random.seed(seed)
+        train_x, test_x, train_y, test_y = train_test_split(
+                                                X, 
+                                                label, 
+                                                test_size=0.25
+                                                )
+        if type == 'train':
+            self.sample = train_x
+            self.indeces = train_y
+        else:
+            self.sample = test_x
+            self.indeces = test_y
+        
+    def __len__(self):
+        return len(self.indeces)
+
+    def __getitem__(self, index):
+        return (self.sample[self.indeces[index]], self.indeces[index])
 
 #jd's version to randomly shuffle class labels for tasks 2-10
 class GetShuffledDataset(Dataset):
