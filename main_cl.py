@@ -322,7 +322,7 @@ def run(args, verbose=False):
     if args.metrics:
         # Load accuracy matrix of "reinit"-experiment (i.e., each task's accuracy when only trained on that task)
         if not utils.checkattr(args, 'reinit'):
-            file_name = "{}/dict-{}-{}".format(args.r_dir, reinit_param_stamp, args.shift)
+            file_name = "{}/dict-{}".format(args.r_dir, reinit_param_stamp)
             if not os.path.isfile("{}.pkl".format(file_name)):
                 raise FileNotFoundError("Need to run the correct 'reinit' experiment (with --metrics) first!!")
             reinit_metrics_dict = utils.load_object(file_name)
@@ -396,12 +396,12 @@ def run(args, verbose=False):
     #------------------#
 
     # Average precision on full test set
-    output_file = open("{}/prec-{}-{}.txt".format(args.r_dir, param_stamp, args.shift), 'w')
+    output_file = open("{}/prec-{}.txt".format(args.r_dir, param_stamp), 'w')
     output_file.write('{}\n'.format(average_precs_ex if args.use_exemplars else average_precs))
     output_file.close()
     # -metrics-dict
     if args.metrics:
-        file_name = "{}/dict-{}-{}".format(args.r_dir, param_stamp, args.shift)
+        file_name = "{}/dict-{}".format(args.r_dir, param_stamp)
         utils.save_object(metrics_dict, file_name)
 
 
