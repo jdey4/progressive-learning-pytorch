@@ -8,9 +8,9 @@ with open('./store/results/dict-CIFAR100-N10-max500--C3-5x16-bn_F-1024x2000x2000
 
 print(data)
 # %%
-file_to_process = "./store/results/dict-CIFAR100-N10-max500--C3-5x16-bn_F-1024x2000x2000_c100--i5000-lr0.0001-b256-"
+file_to_process = "./store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i1000-lr0.0001-b256-R"
 #slots = range(1,11)
-shifts = range(1,7)
+shifts = range(10)
 
 for shift in shifts:
     multitask_df = pd.DataFrame()
@@ -20,7 +20,10 @@ for shift in shifts:
     task = []
     accuracy = []
 
-    filename = file_to_process + str(shift) +'.pkl'
+    if shift == 0:
+        filename = file_to_process +'.pkl'
+    else:
+        filename = file_to_process +'-s' + str(shift) +'.pkl'
 
     with open(filename, 'rb') as f:
         data = pickle.load(f)['R']
