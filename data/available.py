@@ -49,7 +49,11 @@ class SpokenDigit(Dataset):
         super().__init__()
         self.transform = transform
         self.X, self.y = load_spoken_digit('./data/free-spoken-digit-dataset/recordings/')
-        self.X = self.X.reshape(3000,1,28,28)
+        X_ = np.zeros((3000,1,28,28), dtype=float)
+
+        for ii in range(3000):
+            X_[ii,0,:,:] = self.X[ii,:,:].astype(np.float32)
+        self.X = X_.astype(np.float32)
         
     def __len__(self):
         return len(self.y)

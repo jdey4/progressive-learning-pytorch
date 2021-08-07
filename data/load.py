@@ -175,13 +175,14 @@ def get_multitask_experiment(seed, name, tasks, data_dir="./store/datasets", nor
             # prepare train and test datasets with all classes
             if not only_test:
                 spoken_digit_train = get_dataset('spoken_digit', type="train", dir=data_dir, normalize=False,
-                                             augment=augment, target_transform=target_transform, verbose=verbose)
+                                             augment=augment, target_transform=target_transform, verbose=verbose, seed=seed)
             spoken_digit_test = get_dataset('spoken_digit', type="test", dir=data_dir, normalize=False,
                                         target_transform=target_transform, verbose=verbose, seed=seed)
             # generate labels-per-task
             labels_per_task = [
                 list(np.array(range(classes_per_task)) + classes_per_task * task_id) for task_id in range(tasks)
             ]
+            
             # split them up into sub-tasks
             train_datasets = []
             test_datasets = []

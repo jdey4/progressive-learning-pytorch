@@ -109,7 +109,7 @@ def run(args, verbose=False):
 
     # Define optimizer (only optimize parameters that "requires_grad")
     model.optim_list = [
-        {'params': filter(lambda p: p.requires_grad, model.parameters()), 'lr': args.lr},
+        {'params': filter(lambda p: p.requires_grad, model.parameters()), 'lr': 3e-4},
     ]
     model.optimizer = optim.Adam(model.optim_list, betas=(0.9, 0.999))
 

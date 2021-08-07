@@ -62,7 +62,7 @@ class GetSpokenDigitDataset(Dataset):
         return len(self.indeces)
 
     def __getitem__(self, index):
-        return (self.sample[self.indeces[index]], self.indeces[index])
+        return (self.sample[index], self.indeces[index])
 
 #jd's version to randomly shuffle class labels for tasks 2-10
 class GetShuffledDataset(Dataset):
@@ -132,7 +132,6 @@ class ReducedDataset(Dataset):
 
 class ReducedSubDataset(Dataset):
     '''To reduce & sub-sample a dataset, taking only those samples with label in [sub_labels] and at most [max] of them.
-
     After this selection of samples has been made, it is possible to transform the target-labels,
     which can be useful when doing continual learning with fixed number of output units.'''
 
@@ -170,7 +169,6 @@ class ReducedSubDataset(Dataset):
 
 class SubDataset(Dataset):
     '''To sub-sample a dataset, taking only those samples with label in [sub_labels].
-
     After this selection of samples has been made, it is possible to transform the target-labels,
     which can be useful when doing continual learning with fixed number of output units.'''
 
@@ -203,7 +201,6 @@ class SubDataset(Dataset):
 
 class ExemplarDataset(Dataset):
     '''Create dataset from list of <np.arrays> with shape (N, C, H, W) (i.e., with N images each).
-
     The images at the i-th entry of [exemplar_sets] belong to class [i], unless a [target_transform] is specified'''
 
     def __init__(self, exemplar_sets, target_transform=None):
@@ -258,7 +255,6 @@ class TransformedDataset(Dataset):
 
 def permutate_image_pixels(image, permutation):
     '''Permutate the pixels of an image according to [permutation].
-
     [image]         3D-tensor containing the image
     [permutation]   <ndarray> of pixel-indeces in their new order'''
 

@@ -3,12 +3,12 @@ import numpy as np
 import pickle
 import pandas as pd
 #%%
-with open('./store/results/dict-CIFAR100-N10-max500--C3-5x16-bn_F-1024x2000x2000_c100--i5000-lr0.0001-b256--EWC10000.0-1000-1.pkl', 'rb') as f:
+with open('/Users/jayantadey/progressive-learning-pytorch/store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i100-lr0.0001-b256-R.pkl', 'rb') as f:
     data = pickle.load(f)
 
 print(data)
 # %%
-file_to_process = "./store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i1000-lr0.0001-b256-R"
+file_to_process = "./store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i1000-lr0.0001-b256"
 #slots = range(1,11)
 shifts = range(10)
 
@@ -28,7 +28,7 @@ for shift in shifts:
     with open(filename, 'rb') as f:
         data = pickle.load(f)['R']
 
-    for ii in range(10):
+    for ii in range(6):
         for jj in range(ii+1):
             shft.append(shift)
             base_task.append(ii+1)
@@ -40,9 +40,9 @@ for shift in shifts:
     multitask_df['base_task'] = base_task
     multitask_df['accuracy'] = accuracy
         
-    df_single_task['task'] = range(1, 11)
+    df_single_task['task'] = range(1, 7)
     df_single_task['data_fold'] = shift
-    df_single_task['accuracy'] = list(data.iloc[11])
+    df_single_task['accuracy'] = list(data.iloc[7])
 
     summary = (multitask_df,df_single_task)
     with open('./reformed_res/None-{}.pickle'.format(shift), 'wb') as f:
