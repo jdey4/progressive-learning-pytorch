@@ -129,7 +129,7 @@ if __name__ == '__main__':
     #--------------------------#
 
     #jd's change
-    seed_list = list(range(args.seed, args.seed+2))
+    seed_list = list(range(args.seed, args.seed+11))
     #print(seed_list)
     ###----"Re-init"----###
     args.reinit = True
@@ -242,16 +242,16 @@ if __name__ == '__main__':
     metric_dict = {}
     ave_prec_p = {}
     metric_dict_p = {}
-
+    #print('off', OFF, 'none', NONE, 'EWC', EWC)
     ## For each seed, create list with average precisions
     for seed in seed_list:
-        i = 0
-        ave_prec[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
-                          LWF[seed][i], EXACT[seed][i]]
+        #i = 0
+        #ave_prec[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
+        #                  LWF[seed][i], EXACT[seed][i]]
 
-        i = 1
-        metric_dict[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
-                             LWF[seed][i], EXACT[seed][i]]
+        #i = 1
+        #metric_dict[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
+        #                     LWF[seed][i], EXACT[seed][i]]
 
         i = 0
         ave_prec_p[seed] = [OFFp[seed][i], NONEp[seed][i], EWCp[seed][i], OEWCp[seed][i], SIp[seed][i],
@@ -284,16 +284,16 @@ if __name__ == '__main__':
 
     # print average accuracy
     # -not pretrained
-    means = [np.mean([ave_prec[seed][id] for seed in seed_list]) for id in ids]
-    if len(seed_list)>1:
-        sems = [np.sqrt(np.var([ave_prec[seed][id] for seed in seed_list])/(len(seed_list)-1)) for id in ids]
-    print("\n\n"+"#"*60+"\nSUMMARY RESULTS: {}\n".format(title)+"-"*60)
-    for i,name in enumerate(short_names):
+    #means = [np.mean([ave_prec[seed][id] for seed in seed_list]) for id in ids]
+    #if len(seed_list)>1:
+    #    sems = [np.sqrt(np.var([ave_prec[seed][id] for seed in seed_list])/(len(seed_list)-1)) for id in ids]
+    #print("\n\n"+"#"*60+"\nSUMMARY RESULTS: {}\n".format(title)+"-"*60)
+    '''for i,name in enumerate(short_names):
         if len(seed_list) > 1:
             print("{:22s} {:.2f}  (+/- {:.2f}),  n={}".format(name, 100*means[i], 100*sems[i], len(seed_list)))
         else:
             print("{:22s} {:.2f}".format(name, 100*means[i]))
-    print("#"*60)
+    print("#"*60)'''
     # -pretrained
     means = [np.mean([ave_prec_p[seed][id] for seed in seed_list]) for id in ids]
     if len(seed_list)>1:
@@ -308,7 +308,7 @@ if __name__ == '__main__':
 
     # plot Transfer Efficiency
     # -collect not pretrained
-    BTEs = []
+    '''BTEs = []
     FTEs = []
     TEs = []
     for id in ids:
@@ -330,7 +330,7 @@ if __name__ == '__main__':
                 TEs_this_alg.append(TEs_this_alg_this_seed)
         BTEs.append(calc_mean_bte(BTEs_this_alg, task_num=args.tasks, reps=len(seed_list)))
         FTEs.append(calc_mean_te(FTEs_this_alg))
-        TEs.append(calc_mean_te(TEs_this_alg))
+        TEs.append(calc_mean_te(TEs_this_alg))'''
     # -collect pretrained
     BTEsp = []
     FTEsp = []
@@ -356,20 +356,20 @@ if __name__ == '__main__':
         FTEsp.append(calc_mean_te(FTEs_this_alg))
         TEsp.append(calc_mean_te(TEs_this_alg))
     # -make plot
-    figure = visual_plt.plot_TEs_twice(FTEsp, BTEsp, TEsp, FTEs, BTEs, TEs, names,
+    '''figure = visual_plt.plot_TEs_twice(FTEsp, BTEsp, TEsp, FTEs, BTEs, TEs, names,
                                        top_title="500 training samples per task",
                                        bottom_title="5000 training samples per task",
                                        short_names=short_names, task_num=args.tasks, y_lim=(0.58, 1.32),
                                        colors=colors)
-    figure_list.append(figure)
+    figure_list.append(figure)'''
 
 
     # add all figures to pdf
-    for figure in figure_list:
+    '''for figure in figure_list:
         pp.savefig(figure)
 
     # close the pdf
     pp.close()
 
     # Print name of generated plot on screen
-    print("\nGenerated plot: {}/{}.pdf\n".format(args.p_dir, plot_name))
+    print("\nGenerated plot: {}/{}.pdf\n".format(args.p_dir, plot_name))'''
