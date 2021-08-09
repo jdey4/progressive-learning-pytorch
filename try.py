@@ -3,12 +3,12 @@ import numpy as np
 import pickle
 import pandas as pd
 #%%
-with open('/Users/jayantadey/progressive-learning-pytorch/store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i100-lr0.0001-b256-R.pkl', 'rb') as f:
+with open('/Users/jayantadey/progressive-learning-pytorch/store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i100-lr0.0001-b256--EWC10000.0-1000-O1-s5.pkl', 'rb') as f:
     data = pickle.load(f)
 
 print(data)
 # %%
-file_to_process = "./store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i1000-lr0.0001-b256"
+file_to_process = "./store/results/dict-spoken_digit-N6--C1-5x16-bn_F-1024x2000x2000_c60--i100-lr0.0001-b256--EWC10000.0-1000"
 #slots = range(1,11)
 shifts = range(10)
 
@@ -45,6 +45,6 @@ for shift in shifts:
     df_single_task['accuracy'] = list(data.iloc[7])
 
     summary = (multitask_df,df_single_task)
-    with open('./reformed_res/None-{}.pickle'.format(shift), 'wb') as f:
+    with open('./reformed_res/EWC-{}.pickle'.format(shift), 'wb') as f:
         pickle.dump(summary, f)
 # %%
