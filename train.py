@@ -6,33 +6,11 @@ import copy
 import utils
 from data.manipulate import SubDataset, ExemplarDataset
 from models.cl.continual_learner import ContinualLearner
-import time, sys, pickle
-
-def get_size(obj, seen=None):
-    """Recursively finds size of objects"""
-    size = sys.getsizeof(obj)
-    if seen is None:
-        seen = set()
-    obj_id = id(obj)
-    if obj_id in seen:
-        return 0
-    # Important mark as seen *before* entering recursion to gracefully handle
-    # self-referential objects
-    seen.add(obj_id)
-    if isinstance(obj, dict):
-        size += sum([get_size(v, seen) for v in obj.values()])
-        size += sum([get_size(k, seen) for k in obj.keys()])
-    elif hasattr(obj, '__dict__'):
-        size += get_size(obj.__dict__, seen)
-    '''elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-        size += sum([get_size(i, seen) for i in obj])'''
-    return size
 
 
 def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_every=None, m_dir="./store/models",
           args=None):
     '''Train a model with a "train_a_batch" method for [iters] iterations on data from [train_loader].
-
     [model]             model to optimize
     [train_loader]      <dataloader> for training [model] on
     [iters]             <int> (max) number of iterations (i.e., batches) to train for
@@ -40,9 +18,6 @@ def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_eve
     [eval_cbs]          <list> of callback-<functions> to evaluate model on separate data-set'''
 
     device = model._device()
-
-    #jd's change to measure time
-    eval_cbs=list()
 
     # Should convolutional layers be frozen?
     freeze_convE = (utils.checkattr(args, "freeze_convE") and hasattr(args, "depth") and args.depth>0)
@@ -83,11 +58,10 @@ def train(model, train_loader, iters, loss_cbs=list(), eval_cbs=list(), save_eve
 
 
 
-def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none", rnt=None, classes_per_task=None,
+def train_cl(model, train_datasets, replay_mode="none", rnt=None, classes_per_task=None,
              iters=2000, batch_size=32, batch_size_replay=None, loss_cbs=list(), eval_cbs=list(), reinit=False,
              args=None, only_last=False, use_exemplars=False, metric_cbs=list()):
     '''Train a model (with a "train_a_batch" method) on multiple tasks, with replay-strategy specified by [replay_mode].
-
     [model]             <nn.Module> main model to optimize across all tasks
     [train_datasets]    <list> with for each task the training <DataSet>
     [replay_mode]       <str>, choice from "current", "offline" and "none"
@@ -98,23 +72,12 @@ def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none",
     [only_last]         <bool>, only train on final task / episode
     [*_cbs]             <list> of call-back functions to evaluate training-progress'''
 
-    #jd's change to measure time
-    eval_cbs=list()
-    iter_jd = list(
-        range(
-            5000,
-            0,
-            -500
-        )
-    )
-
     # Should convolutional layers be frozen?
     freeze_convE = (utils.checkattr(args, "freeze_convE") and hasattr(args, "depth") and args.depth>0)
 
     # Use cuda?
     device = model._device()
     cuda = model._is_on_cuda()
-    print(cuda,'cuda')
 
     # Set default-values if not specified
     batch_size_replay = batch_size if batch_size_replay is None else batch_size_replay
@@ -131,14 +94,8 @@ def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none",
                 model.register_buffer('{}_SI_prev_task'.format(n), p.detach().clone())
 
     # Loop over all tasks.
-    time_info = []
-    mem_info = []
-
-    start_time = time.time()
     for task, train_dataset in enumerate(train_datasets, 1):
 
-        #jd's change to measure time complexity
-        iters = iter_jd[task-1]
         # In offline replay-setting, all tasks so far should be visited separately (i.e., separate data-loader per task)
         if replay_mode=="offline":
             Offline_TaskIL = True
@@ -364,10 +321,6 @@ def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none",
             model.compute_means = True
 
         # Calculate statistics required for metrics
-
-        #jd's change to measure time only
-        metric_cbs=list()
-
         for metric_cb in metric_cbs:
             if metric_cb is not None:
                 metric_cb(model, iters, task=task)
@@ -389,13 +342,3 @@ def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none",
                             (classes_per_task * task_id):(classes_per_task * (task_id + 1))],
                             target_transform=lambda y, x=classes_per_task * task_id: y + x)
                     )
-
-        end_time = time.time()
-        time_info.append(end_time-start_time)
-        mem_info.append(get_size(model))
-
-    with open('./time_res/'+model_name+'-'+str(shift)+'-'+str(slot)+'.pkl','wb') as f:
-        pickle.dump(time_info,f)
-
-    with open('./mem_res/'+model_name+'-'+str(shift)+'-'+str(slot)+'.pkl','wb') as f:
-        pickle.dump(mem_info,f)

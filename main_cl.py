@@ -40,7 +40,7 @@ def handle_inputs():
 
 
 ## Function for running one continual learning experiment
-def run(args, model_name, shift, slot, verbose=False):
+def run(args, model_name, verbose=False):
 
     # Create plots- and results-directories if needed
     if not os.path.isdir(args.r_dir):
@@ -74,12 +74,12 @@ def run(args, model_name, shift, slot, verbose=False):
     #----------------#
     #----- DATA -----#
     #----------------#
-
+    args.experiment = '5data'
     # Prepare data for chosen experiment
     if verbose:
         print("\nPreparing the data...")
     (train_datasets, test_datasets), config, classes_per_task = get_multitask_experiment(
-        name=args.experiment, tasks=args.tasks, slot=args.slot, shift=args.shift, data_dir=args.d_dir,
+        name=args.experiment, tasks=args.tasks, data_dir=args.d_dir,
         normalize=True if utils.checkattr(args, "normalize") else False,
         augment=True if utils.checkattr(args, "augment") else False,
         verbose=verbose, exception=True if args.seed<10 else False, only_test=(not args.train),
@@ -256,7 +256,7 @@ def run(args, model_name, shift, slot, verbose=False):
             print("\nTraining...")
         # Train model
         train_cl(
-            model, train_datasets, model_name=model_name, shift=shift, slot=slot, replay_mode=args.replay if hasattr(args, 'replay') else "none",
+            model, train_datasets, replay_mode=args.replay if hasattr(args, 'replay') else "none",
             classes_per_task=classes_per_task, iters=args.iters, args=args,
             batch_size=args.batch, batch_size_replay=args.batch_replay if hasattr(args, 'batch_replay') else None,
             eval_cbs=eval_cbs, loss_cbs=solver_loss_cbs, reinit=utils.checkattr(args, 'reinit'),
@@ -316,12 +316,15 @@ def run(args, model_name, shift, slot, verbose=False):
             for i in range(args.tasks):
                 print(" - Task {}: {:.4f}".format(i + 1, precs[i]))
             print('=> Average precision over all {} tasks: {:.4f}\n'.format(args.tasks, average_precs_ex))
-
+    
+    
+    
+    print(metrics_dict)
     # If requested, compute metrics
-    '''if args.metrics:
+    if args.metrics:
         # Load accuracy matrix of "reinit"-experiment (i.e., each task's accuracy when only trained on that task)
         if not utils.checkattr(args, 'reinit'):
-            file_name = "{}/dict-{}-{}-{}".format(args.r_dir, reinit_param_stamp, args.slot, args.shift)
+            file_name = "{}/dict-{}".format(args.r_dir, reinit_param_stamp)
             if not os.path.isfile("{}.pkl".format(file_name)):
                 raise FileNotFoundError("Need to run the correct 'reinit' experiment (with --metrics) first!!")
             reinit_metrics_dict = utils.load_object(file_name)
@@ -387,7 +390,7 @@ def run(args, model_name, shift, slot, verbose=False):
             print("BWT = {:.4f}".format(BWT))
             print("  F = {:.4f}\n\n".format(F))
 
-
+    print(R)
     #-------------------------------------------------------------------------------------------------#
 
     #------------------#
@@ -395,12 +398,12 @@ def run(args, model_name, shift, slot, verbose=False):
     #------------------#
 
     # Average precision on full test set
-    output_file = open("{}/prec-{}-{}-{}.txt".format(args.r_dir, param_stamp, args.slot, args.shift), 'w')
+    output_file = open("{}/prec-{}.txt".format(args.r_dir, param_stamp), 'w')
     output_file.write('{}\n'.format(average_precs_ex if args.use_exemplars else average_precs))
     output_file.close()
     # -metrics-dict
     if args.metrics:
-        file_name = "{}/dict-{}-{}-{}".format(args.r_dir, param_stamp, args.slot, args.shift)
+        file_name = "{}/dict-{}".format(args.r_dir, param_stamp)
         utils.save_object(metrics_dict, file_name)
 
 
@@ -454,7 +457,7 @@ def run(args, model_name, shift, slot, verbose=False):
 
         # -print name of generated plot on screen
         if verbose:
-            print("\nGenerated plot: {}\n".format(plot_name))'''
+            print("\nGenerated plot: {}\n".format(plot_name))
 
 
 

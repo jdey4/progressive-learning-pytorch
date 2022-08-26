@@ -8,7 +8,7 @@ def get_param_stamp_from_args(args):
 
     # -get configurations of experiment
     config = get_multitask_experiment(
-        name=args.experiment, tasks=args.tasks, slot= args.slot, shift=args.shift, data_dir=args.d_dir, only_config=True,
+        name=args.experiment, tasks=args.tasks, data_dir=args.d_dir, only_config=True,
         normalize=args.normalize if hasattr(args, "normalize") else False, verbose=False,
     )
 
@@ -31,7 +31,7 @@ def get_param_stamp(args, model_name, verbose=True, replay=False):
         n=args.tasks, of="OL" if checkattr(args, 'only_last') else ""
     ) if hasattr(args, "tasks") else ""
     task_stamp = "{exp}{norm}{aug}{multi_n}{max_n}".format(
-        exp=args.experiment, norm="-N" if hasattr(args, 'normalize') and args.normalize else "",
+        exp='dataset5', norm="-N" if hasattr(args, 'normalize') and args.normalize else "",
         aug="+" if hasattr(args, "augment") and args.augment else "", multi_n=multi_n_stamp,
         max_n="" if (not args.experiment=="CIFAR100") or args.max_samples is None else "-max{}".format(args.max_samples)
     )
