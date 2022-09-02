@@ -3,46 +3,40 @@ import numpy as np
 import pickle
 import pandas as pd
 #%%
-with open('./store/results/dict-CIFAR100-N10-max50--C3-5x16-bn_F-1024x2000x2000_c100--i500-lr0.0001-b256--EWC10000.0-1000-1-2.pkl', 'rb') as f:
+with open('./store/results/dict-dataset5-N5--C3-5x16-bn_F-1024x2000x2000_c50--i1000-lr0.0001-b256-R.pkl', 'rb') as f:
     data = pickle.load(f)
 
 print(data)
 # %%
-file_to_process = "./store/results/dict-CIFAR100-N10-max50--C3-5x16-bn_F-1024x2000x2000_c100--i500-lr0.0001-b256--EWC10000.0-1000-"
-slots = range(1,11)
-shifts = range(1,7)
+#file_to_process = '/Users/jayantadey/progressive-learning-pytorch/store/results/dict-dataset5-N5--C3-5x16-bn_F-1024x2000x2000_c50--i1000-lr0.0001-b256--EWC10000.0-1000.pkl'
 
-for shift in shifts:
-    for slot in slots:
-        multitask_df = pd.DataFrame()
-        df_single_task = pd.DataFrame()
-        shft = []
-        base_task = []
-        task = []
-        accuracy = []
 
-        filename = file_to_process + str(slot) + '-' + str(shift) +'.pkl'
+multitask_df = pd.DataFrame()
+df_single_task = pd.DataFrame()
+shft = []
+base_task = []
+task = []
+accuracy = []
 
-        with open(filename, 'rb') as f:
-            data = pickle.load(f)['R']
+filename = '/Users/jayantadey/progressive-learning-pytorch/store/results/dict-dataset5-N5--C3-5x16-bn_F-1024x2000x2000_c50--i1000-lr0.0001-b256.pkl'
 
-        for ii in range(10):
-            for jj in range(ii+1):
-                shft.append(shift)
-                base_task.append(ii+1)
-                task.append(jj+1)
-                accuracy.append(data['task {}'.format(jj+1)].iloc[ii+1])
+with open(filename, 'rb') as f:
+    data = pickle.load(f)['R']
 
-        multitask_df['data_fold'] = shft
-        multitask_df['task'] = task
-        multitask_df['base_task'] = base_task
-        multitask_df['accuracy'] = accuracy
-        
-        df_single_task['task'] = range(1, 11)
-        df_single_task['data_fold'] = shift
-        df_single_task['accuracy'] = list(data.iloc[11])
+for ii in range(5):
+    for jj in range(ii+1):
+        base_task.append(ii+1)
+        task.append(jj+1)
+        accuracy.append(data['task {}'.format(jj+1)].iloc[ii+1])
 
-        summary = (multitask_df,df_single_task)
-        with open('./reformed_res/EWC-{}-{}.pickle'.format(slot, shift), 'wb') as f:
-            pickle.dump(summary, f)
+multitask_df['task'] = task
+multitask_df['base_task'] = base_task
+multitask_df['accuracy'] = accuracy
+
+df_single_task['task'] = range(1, 6)
+df_single_task['accuracy'] = list(data.iloc[6])
+
+summary = (multitask_df,df_single_task)
+with open('./reformed_res/None.pickle', 'wb') as f:
+    pickle.dump(summary, f)
 # %%
