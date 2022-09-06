@@ -74,7 +74,8 @@ def run(args, model_name, verbose=False):
     #----------------#
     #----- DATA -----#
     #----------------#
-    args.experiment = '5data'
+    args.experiment = 'imagenet'
+    args.tasks = 20
     # Prepare data for chosen experiment
     if verbose:
         print("\nPreparing the data...")
@@ -86,7 +87,7 @@ def run(args, model_name, verbose=False):
         max_samples=args.max_samples
     )
 
-
+    #print(train_datasets)
     #-------------------------------------------------------------------------------------------------#
 
     #----------------------#

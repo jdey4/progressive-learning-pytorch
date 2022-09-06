@@ -53,4 +53,5 @@ DATASET_CONFIGS = {
     'cifar10': {'size': 32, 'channels': 3, 'classes': 10},
     'cifar100': {'size': 32, 'channels': 3, 'classes': 100},
     'dataset5': {'size': 32, 'channels': 3, 'classes': 100},
+    'imagenet': {'size': 84, 'channels': 3, 'classes': 100},
 }

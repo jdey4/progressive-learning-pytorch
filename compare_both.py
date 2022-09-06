@@ -134,7 +134,7 @@ if __name__ == '__main__':
     REINIT = {}
     #REINIT = collect_all(REINIT, seed_list, args, name="Only train on each individual task (using 'reinit')")
     #args.max_samples = 50
-    args.iters = 1000
+    args.iters = 100
     REINITp = {}
     REINITp = collect_all(REINITp, seed_list, args, model_name='reinit', name="Only train on each individual task (using 'reinit')")
     
