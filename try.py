@@ -18,7 +18,7 @@ base_task = []
 task = []
 accuracy = []
 
-filename = '/Users/jayantadey/progressive-learning-pytorch/store/results/dict-dataset5-N20--C3-5x16-bn_F-9216x2000x2000_c100--i100-lr0.0001-b256--offline.pkl'
+filename = '/Users/jayantadey/progressive-learning-pytorch/store/results/dict-dataset5-N20--C3-5x16-bn_F-9216x2000x2000_c100--i100-lr0.0001-b256--SI10000.0-0.1.pkl'
 
 with open(filename, 'rb') as f:
     data = pickle.load(f)['R']
@@ -37,6 +37,6 @@ df_single_task['task'] = range(1, 21)
 df_single_task['accuracy'] = list(data.iloc[6])
 
 summary = (multitask_df,df_single_task)
-with open('./reformed_res/imagenet/exact.pickle', 'wb') as f:
+with open('./reformed_res/imagenet/si.pickle', 'wb') as f:
     pickle.dump(summary, f)
 # %%
