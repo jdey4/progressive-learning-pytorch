@@ -9,7 +9,7 @@ import os
 from random import sample
 import cv2 
 
-#JD's change
+#JD's change 
 TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
 VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
