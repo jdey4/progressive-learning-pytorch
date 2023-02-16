@@ -48,12 +48,12 @@ def get_results(args):
         args.metrics = True
         main_cl.run(args)
     # -get average precision
-    file_name = '{}/prec-{}-{}.txt'.format(args.r_dir, param_stamp, args.shift)
+    file_name = '{}/prec-{}.txt'.format(args.r_dir, param_stamp)
     file = open(file_name)
     ave = float(file.readline())
     file.close()
     # -get metrics-dict
-    file_name = '{}/dict-{}-{}'.format(args.r_dir, param_stamp, args.shift)
+    file_name = '{}/dict-{}'.format(args.r_dir, param_stamp)
     metrics_dict = utils.load_object(file_name)
     # -print average precision on screen
     print("--> average precision: {}".format(ave))
