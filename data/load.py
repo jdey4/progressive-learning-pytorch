@@ -10,7 +10,7 @@ from random import sample
 import cv2 
 
 #JD's change
-TRAIN_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Train' #'/cis/home/jdey4/LargeFineFoodAI/Train'
+TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
 VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
 CATEGORIES = list(range(20))
