@@ -8,7 +8,7 @@ def get_param_stamp_from_args(args):
 
     # -get configurations of experiment
     config = get_multitask_experiment(
-        name=args.experiment, tasks=args.tasks, shift=args.shift, data_dir=args.d_dir, only_config=True,
+        name=args.experiment, tasks=args.tasks, data_dir=args.d_dir, only_config=True,
         normalize=args.normalize if hasattr(args, "normalize") else False, verbose=False,
     )
 
