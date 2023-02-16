@@ -74,12 +74,13 @@ def run(args, verbose=False):
     #----------------#
     #----- DATA -----#
     #----------------#
-
+    args.experiment = 'food1k'
+    args.tasks = 50
     # Prepare data for chosen experiment
     if verbose:
         print("\nPreparing the data...")
     (train_datasets, test_datasets), config, classes_per_task = get_multitask_experiment(
-        name=args.experiment, tasks=args.tasks, shift=args.shift, data_dir=args.d_dir,
+        name=args.experiment, tasks=args.tasks, data_dir=args.d_dir,
         normalize=True if utils.checkattr(args, "normalize") else False,
         augment=True if utils.checkattr(args, "augment") else False,
         verbose=verbose, exception=True if args.seed<10 else False, only_test=(not args.train),

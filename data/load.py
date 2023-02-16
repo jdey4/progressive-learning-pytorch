@@ -1,10 +1,104 @@
 import copy
+import torch
 import numpy as np
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
 from data.available import AVAILABLE_DATASETS, AVAILABLE_TRANSFORMS, DATASET_CONFIGS
 from data.manipulate import ReducedDataset, ReducedSubDataset, SubDataset, TransformedDataset, GetSlotDataset, permutate_image_pixels, GetShuffledDataset
+import os
+from random import sample
+import cv2 
 
+#JD's change
+TRAIN_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Train' #'/cis/home/jdey4/LargeFineFoodAI/Train'
+VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
+
+CATEGORIES = list(range(20))
+SAMPLE_PER_CLASS = 60
+NUM_CLASS_PER_TASK = 20
+IMG_SIZE = 50
+
+###################################################
+class MyDataloader(torch.utils.data.Dataset):
+	def __init__(self, X, Y):
+		self.images = X / 255.
+		self.labels = torch.from_numpy(Y)
+
+	def __len__(self):
+		return len(self.images)
+
+	def __getitem__(self, idx):
+		return torch.from_numpy(self.images[idx].transpose((2, 0, 1))).float(), self.labels[idx]
+
+
+def get_food_dataset(tasks=50):
+    train_datasets  = []
+    test_datasets = []
+
+    for task in range(tasks):
+        train_X = []
+        train_y = []
+        test_X = []
+        test_y = []
+        
+        categories_to_consider = range(task*NUM_CLASS_PER_TASK,(task+1)*NUM_CLASS_PER_TASK)
+        for category in categories_to_consider:
+            path = os.path.join(TRAIN_DATADIR, str(category))
+
+            images = os.listdir(path)
+            total_images = len(images)
+            train_indx = sample(range(total_images), SAMPLE_PER_CLASS)
+            test_indx = np.delete(range(total_images), train_indx)
+            for ii in train_indx:
+                image_data = cv2.imread(
+                        os.path.join(path, images[ii])
+                    )
+                resized_image = cv2.resize(
+                    image_data, 
+                    (IMG_SIZE, IMG_SIZE)
+                )
+                train_X.append(
+                    resized_image
+                )
+                train_y.append(
+                    category
+                )
+            for ii in test_indx:
+                image_data = cv2.imread(
+                        os.path.join(path, images[ii])
+                    )
+                resized_image = cv2.resize(
+                    image_data, 
+                    (IMG_SIZE, IMG_SIZE)
+                )
+                test_X.append(
+                    resized_image
+                )
+                test_y.append(
+                    category
+                )
+
+        train_X = np.array(train_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        train_y = np.array(train_y)
+        test_X = np.array(test_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        test_y = np.array(test_y)
+
+        train_datasets.append(
+            MyDataloader(
+                train_X,
+                train_y
+            )
+        )
+        test_datasets.append(
+            MyDataloader(
+                test_X,
+                test_y
+            )
+        )
+    
+    return train_datasets, test_datasets
+
+    
 def get_dataset(name, shift, type='train', download=True, capacity=None, permutation=None, dir='./store/datasets',
                 verbose=False, augment=False, normalize=False, target_transform=None, valid_prop=0.):
     '''Create [train|valid|test]-dataset.'''
@@ -89,7 +183,7 @@ def get_singletask_experiment(name, data_dir="./store/datasets", normalize=False
     return (trainset, testset), config
 
 
-def get_multitask_experiment(name, tasks, shift, data_dir="./store/datasets", normalize=False, augment=False,
+def get_multitask_experiment(name, tasks, data_dir="./store/datasets", normalize=False, augment=False,
                              only_config=False, verbose=False, exception=False, only_test=False, max_samples=None):
     '''Load, organize and return train- and test-dataset for requested multi-task experiment.'''
 
@@ -188,6 +282,11 @@ def get_multitask_experiment(name, tasks, shift, data_dir="./store/datasets", no
                         train_datasets.append(ReducedSubDataset(cifar100_train, labels,
                                                                 target_transform=target_transform, max=max_samples))
                 test_datasets.append(SubDataset(cifar100_test, labels, target_transform=target_transform))
+    elif name == 'food1k':
+        config = DATASET_CONFIGS['food1k']
+        classes_per_task = int(np.floor(1000 / tasks))
+
+        train_datasets, test_datasets = get_food_dataset(tasks)
     else:
         raise RuntimeError('Given undefined experiment: {}'.format(name))
 

@@ -30,9 +30,6 @@ def handle_inputs():
                         help="--> EWC: reg strength with 500 training samples")
     parser.add_argument('--o-lambda-500', metavar="LAMBDA", type=float,
                         help="--> Online EWC: reg strength with 500 training samples")
-    parser.add_argument('--shift', metavar="LAMBDA", type=int,
-                        help="-->shift: The number of shift to perform on test-train set")
-
 
     args = parser.parse_args()
     options.set_defaults(args, **kwargs)
@@ -44,7 +41,7 @@ def get_results(args):
     # -get param-stamp
     param_stamp = get_param_stamp_from_args(args)
     # -check whether already run; if not do so
-    if os.path.isfile('{}/dict-{}-{}.pkl'.format(args.r_dir, param_stamp, args.shift)):
+    if os.path.isfile('{}/dict-{}.pkl'.format(args.r_dir, param_stamp)):
         print("{}: already run".format(param_stamp))
     else:
         print("{}: ...running...".format(param_stamp))
@@ -136,15 +133,15 @@ if __name__ == '__main__':
     REINIT = {}
     #REINIT = collect_all(REINIT, seed_list, args, name="Only train on each individual task (using 'reinit')")
     args.max_samples = 500
-    args.iters = 5000
+    args.iters = 500
     REINITp = {}
     REINITp = collect_all(REINITp, seed_list, args, name="Only train on each individual task (using 'reinit' - 500 samples)")
     args.max_samples = None
-    args.iters = 5000
+    args.iters = 500
     args.reinit = False
 
     ## None
-    args.replay = "none"
+    '''args.replay = "none"
     NONE = {}
     #NONE = collect_all(NONE, seed_list, args, name="None")
     args.max_samples = 500
@@ -217,7 +214,7 @@ if __name__ == '__main__':
     SIp = collect_all(SIp, seed_list, args, name="SI - 500 samples")
     args.max_samples = None
     args.iters = 5000
-    args.si = False
+    args.si = False'''
 
     ## LwF
     args.replay = "current"
@@ -246,20 +243,16 @@ if __name__ == '__main__':
     ## For each seed, create list with average precisions
     for seed in seed_list:
         i = 0
-        ave_prec[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
-                          LWF[seed][i], EXACT[seed][i]]
+        ave_prec[seed] = [LWF[seed][i]]
 
         i = 1
-        metric_dict[seed] = [OFF[seed][i], NONE[seed][i], EWC[seed][i], OEWC[seed][i], SI[seed][i],
-                             LWF[seed][i], EXACT[seed][i]]
+        metric_dict[seed] = [LWF[seed][i]]
 
         i = 0
-        ave_prec_p[seed] = [OFFp[seed][i], NONEp[seed][i], EWCp[seed][i], OEWCp[seed][i], SIp[seed][i],
-                            LWFp[seed][i], EXACTp[seed][i]]
+        ave_prec_p[seed] = [LWFp[seed][i]]
 
         i = 1
-        metric_dict_p[seed] = [OFFp[seed][i], NONEp[seed][i], EWCp[seed][i], OEWCp[seed][i], SIp[seed][i],
-                               LWFp[seed][i], EXACTp[seed][i]]
+        metric_dict_p[seed] = [LWFp[seed][i]]
 
 
     #-------------------------------------------------------------------------------------------------#

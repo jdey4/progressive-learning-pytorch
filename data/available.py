@@ -52,4 +52,5 @@ DATASET_CONFIGS = {
     'mnist28': {'size': 28, 'channels': 1, 'classes': 10},
     'cifar10': {'size': 32, 'channels': 3, 'classes': 10},
     'cifar100': {'size': 32, 'channels': 3, 'classes': 100},
+    'food1k': {'size': 50, 'channels': 3, 'classes': 100}
 }
