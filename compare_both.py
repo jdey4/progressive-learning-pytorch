@@ -39,6 +39,7 @@ def handle_inputs():
 
 def get_results(args):
     # -get param-stamp
+    args.experiment = 'food1k'
     param_stamp = get_param_stamp_from_args(args)
     # -check whether already run; if not do so
     if os.path.isfile('{}/dict-{}.pkl'.format(args.r_dir, param_stamp)):
