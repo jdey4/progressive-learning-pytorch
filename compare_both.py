@@ -149,7 +149,7 @@ if __name__ == '__main__':
     args.max_samples = 500
     #args.iters = 5000
     NONEp = {}
-    NONEp = collect_all(NONEp, seed_list, args, name="None - 500 samples")
+    #NONEp = collect_all(NONEp, seed_list, args, name="None - 500 samples")
     args.max_samples = None
     #args.iters = 5000
 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     args.max_samples = 500
     #args.iters = 5000
     OFFp = {}
-    OFFp = collect_all(OFFp, seed_list, args, name="Full replay (increasing amount of replay with each new task - 500 samples)")
+    #OFFp = collect_all(OFFp, seed_list, args, name="Full replay (increasing amount of replay with each new task - 500 samples)")
     args.max_samples = None
     #args.iters = 5000
     args.replay = "none"
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     args.max_samples = 500
     #args.iters = 5000
     EXACTp = {}
-    EXACTp = collect_all(EXACTp, seed_list, args, name="Exact replay (fixed amount of total replay - 500 samples)")
+    #EXACTp = collect_all(EXACTp, seed_list, args, name="Exact replay (fixed amount of total replay - 500 samples)")
     args.max_samples = None
     #args.iters = 5000
     args.replay = "none"
@@ -185,7 +185,7 @@ if __name__ == '__main__':
     #args.iters = 5000
     args.ewc_lambda = args.lambda_500 if args.lambda_500 is not None else args.ewc_lambda
     EWCp = {}
-    EWCp = collect_all(EWCp, seed_list, args, name="EWC - 500 samples")
+    #EWCp = collect_all(EWCp, seed_list, args, name="EWC - 500 samples")
     args.max_samples = None
     #args.iters = 5000
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     #args.iters = 5000
     args.ewc_lambda = args.o_lambda_500 if args.o_lambda_500 is not None else args.ewc_lambda
     OEWCp = {}
-    OEWCp = collect_all(OEWCp, seed_list, args, name="Online EWC - 500 samples")
+    #OEWCp = collect_all(OEWCp, seed_list, args, name="Online EWC - 500 samples")
     args.max_samples = None
     #args.iters = 5000
     args.ewc = False
@@ -213,7 +213,7 @@ if __name__ == '__main__':
     #args.iters = 5000
     args.si_c = args.c_500 if args.c_500 is not None else args.si_c
     SIp = {}
-    SIp = collect_all(SIp, seed_list, args, name="SI - 500 samples")
+    #SIp = collect_all(SIp, seed_list, args, name="SI - 500 samples")
     args.max_samples = None
     #args.iters = 5000
     args.si = False
