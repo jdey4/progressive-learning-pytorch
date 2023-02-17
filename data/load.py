@@ -157,6 +157,7 @@ def get_dataset(name, shift, type='train', download=True, capacity=None, permuta
 
 
 def get_singletask_experiment(name, data_dir="./store/datasets", normalize=False, augment=False, verbose=False):
+    print('kutta')
     '''Load, organize and return train- and test-dataset for requested single-task experiment.'''
 
     # Define data-type
