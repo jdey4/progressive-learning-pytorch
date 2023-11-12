@@ -137,6 +137,17 @@ def train_cl(model, train_datasets, model_name, shift, slot, replay_mode="none",
     start_time = time.time()
     for task, train_dataset in enumerate(train_datasets, 1):
 
+        param_size = 0
+        for param in model.parameters():
+            param_size += param.nelement() * param.element_size()
+        buffer_size = 0
+        for buffer in model.buffers():
+            buffer_size += buffer.nelement() * buffer.element_size()
+
+        size_all_mb = (param_size + buffer_size) / 1024**2
+
+        print(size_all_mb, 'mb')
+
         #jd's change to measure time complexity
         iters = iter_jd[task-1]
         # In offline replay-setting, all tasks so far should be visited separately (i.e., separate data-loader per task)
