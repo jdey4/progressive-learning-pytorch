@@ -25,7 +25,7 @@ for seed in seeds:
             for jj in range(ii+1):
                 base_task.append(ii+1)
                 task.append(jj+1)
-                accuracy.append(data['task {}'.format(jj+1)].iloc[ii+1]+np.random.normal(0, .01, 1))
+                accuracy.append(data['task {}'.format(jj+1)].iloc[ii+1]+np.random.normal(0, .01, 1)[0])
 
         multitask_df['task'] = task
         multitask_df['base_task'] = base_task
