@@ -74,8 +74,8 @@ def run(args, verbose=False):
     #----------------#
     #----- DATA -----#
     #----------------#
-    args.experiment = 'food1k'
-    args.tasks = 50
+    args.experiment = 'core50'
+    args.tasks = 110
     # Prepare data for chosen experiment
     if verbose:
         print("\nPreparing the data...")

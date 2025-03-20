@@ -8,15 +8,31 @@ from data.manipulate import ReducedDataset, ReducedSubDataset, SubDataset, Trans
 import os
 from random import sample
 import cv2 
+import pickle
 
 #JD's change 
-TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
-VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
+# TRAIN_DATADIR = '/cis/home/jdey4/LargeFineFoodAI/Train'
+# VAL_DATADIR = '/Users/jayantadey/Downloads/LargeFineFoodAI/Val'
 
 CATEGORIES = list(range(20))
-SAMPLE_PER_CLASS = 60
-NUM_CLASS_PER_TASK = 20
-IMG_SIZE = 50
+SAMPLE_PER_CLASS = 100
+NUM_CLASS_PER_TASK = 5
+IMG_SIZE = 128
+
+X = np.load('/Users/jayantadey/Downloads/core50_imgs.npz')['x']
+y = []
+
+pkl_file = open('/Users/jayantadey/Downloads/paths.pkl', 'rb') 
+paths = pickle.load(pkl_file)
+
+for path in paths:
+    splits = path.split('/')
+    label = (int(splits[0][1:])-1)*50 + int(splits[1][1:]) - 1
+    y.append(label)
+
+y = np.array(y)
+print('data extracted')
+
 
 ###################################################
 class MyDataloader(torch.utils.data.Dataset):
@@ -31,58 +47,55 @@ class MyDataloader(torch.utils.data.Dataset):
 		return torch.from_numpy(self.images[idx].transpose((2, 0, 1))).float(), self.labels[idx]
 
 
-def get_food_dataset(tasks=50):
+def get_data(task=0):
+    train_X = []
+    train_y = []
+    test_X = []
+    test_y = []
+    
+    categories_to_consider = range(task*NUM_CLASS_PER_TASK,(task+1)*NUM_CLASS_PER_TASK)
+    for category in categories_to_consider:
+        idx = np.where(y==category)[0]
+        total_images = len(idx)
+        
+        train_indx = sample(range(total_images), SAMPLE_PER_CLASS)
+        test_indx = np.delete(range(total_images), train_indx)
+        for ii in train_indx:
+            train_X.append(
+                X[idx[ii]]
+            )
+            train_y.append(
+                y[idx[ii]]
+            )
+        for ii in test_indx:
+            test_X.append(
+                X[idx[ii]]
+            )
+            test_y.append(
+                y[idx[ii]]
+            )
+
+    train_X = np.array(train_X)#.reshape(-1,IMG_SIZE,IMG_SIZE,3)
+    train_y = np.array(train_y)
+    test_X = np.array(test_X)#.reshape(-1,IMG_SIZE,IMG_SIZE,3)
+    test_y = np.array(test_y)
+    
+    return train_X, train_y, test_X, test_y
+
+
+def get_core50_dataset(tasks=110):
     train_datasets  = []
     test_datasets = []
 
     for task in range(tasks):
-        train_X = []
-        train_y = []
-        test_X = []
-        test_y = []
         
-        categories_to_consider = range(task*NUM_CLASS_PER_TASK,(task+1)*NUM_CLASS_PER_TASK)
-        for category in categories_to_consider:
-            path = os.path.join(TRAIN_DATADIR, str(category))
+        train_X, train_y, test_X, test_y = get_data(task)
 
-            images = os.listdir(path)
-            total_images = len(images)
-            train_indx = sample(range(total_images), SAMPLE_PER_CLASS)
-            test_indx = np.delete(range(total_images), train_indx)
-            for ii in train_indx:
-                image_data = cv2.imread(
-                        os.path.join(path, images[ii])
-                    )
-                resized_image = cv2.resize(
-                    image_data, 
-                    (IMG_SIZE, IMG_SIZE)
-                )
-                train_X.append(
-                    resized_image
-                )
-                train_y.append(
-                    category
-                )
-            for ii in test_indx:
-                image_data = cv2.imread(
-                        os.path.join(path, images[ii])
-                    )
-                resized_image = cv2.resize(
-                    image_data, 
-                    (IMG_SIZE, IMG_SIZE)
-                )
-                test_X.append(
-                    resized_image
-                )
-                test_y.append(
-                    category
-                )
-
-        train_X = np.array(train_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-        train_y = np.array(train_y)
-        test_X = np.array(test_X).reshape(-1,IMG_SIZE,IMG_SIZE,3)
-        test_y = np.array(test_y)
-
+        train_X = train_X.reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        train_y = train_y
+        test_X = test_X.reshape(-1,IMG_SIZE,IMG_SIZE,3)
+        test_y = test_y
+        # print(test_y)
         train_datasets.append(
             MyDataloader(
                 train_X,
@@ -283,11 +296,11 @@ def get_multitask_experiment(name, tasks, data_dir="./store/datasets", normalize
                         train_datasets.append(ReducedSubDataset(cifar100_train, labels,
                                                                 target_transform=target_transform, max=max_samples))
                 test_datasets.append(SubDataset(cifar100_test, labels, target_transform=target_transform))
-    elif name == 'food1k':
-        config = DATASET_CONFIGS['food1k']
-        classes_per_task = int(np.floor(1000 / tasks))
+    elif name == 'core50':
+        config = DATASET_CONFIGS['core50']
+        classes_per_task = int(np.floor(550 / tasks))
 
-        train_datasets, test_datasets = get_food_dataset(tasks)
+        train_datasets, test_datasets = get_core50_dataset(tasks)
     else:
         raise RuntimeError('Given undefined experiment: {}'.format(name))
 

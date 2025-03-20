@@ -39,8 +39,8 @@ def handle_inputs():
 
 def get_results(args):
     # -get param-stamp
-    args.experiment = 'food1k'
-    args.tasks = 50
+    args.experiment = 'core50'
+    args.tasks = 110
     param_stamp = get_param_stamp_from_args(args)
     # -check whether already run; if not do so
     if os.path.isfile('{}/dict-{}.pkl'.format(args.r_dir, param_stamp)):
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     REINIT = {}
     #REINIT = collect_all(REINIT, seed_list, args, name="Only train on each individual task (using 'reinit')")
     args.max_samples = 500
-    args.iters = 500
+    args.iters = 50
     REINITp = {}
     REINITp = collect_all(REINITp, seed_list, args, name="Only train on each individual task (using 'reinit' - 500 samples)")
     args.max_samples = None
